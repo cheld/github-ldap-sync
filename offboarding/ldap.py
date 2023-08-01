@@ -1,18 +1,25 @@
 from ldap3 import Server, Connection, NTLM, SUBTREE
 import getpass
+import os
 
 class LDAP:
     def __init__(self):
         self.connection = None
 
-    def open(self):
-        # Connection parameters
-        host = 'gids.srv.allianz'
-        port = 636
-        base_dn = 'DC=GIDS,DC=Allianz,DC=COM'
+        # Ensure that the required environment variables are set
+        required_env_variables = ['LDAP_HOST', 'LDAP_PORT', 'LDAP_BASE_DN', 'LDAP_USER', 'LDAP_SEARCH_DN', 'LDAP_SEARCH_ATTRIBUTES']
+        for env_variable in required_env_variables:
+            if not os.getenv(env_variable):
+                raise ValueError(f"Required environment variable {env_variable} is not set.")
 
-        # Credentials
-        user = 'ALLIANZDE\\oejdwqy'
+
+    def open(self):
+
+        # Connection parameters  
+        host = os.getenv('LDAP_HOST')
+        port = int(os.getenv('LDAP_PORT', 636))
+        base_dn = os.getenv('LDAP_BASE_DN')
+        user =  os.getenv('LDAP_USER')
         password = getpass.getpass("Enter your password: ")
 
         # Establish the connection using GSS Negotiate (Kerberos)
@@ -23,9 +30,9 @@ class LDAP:
     def validate_email(self, email):
 
         # Search parameters
-        search_dn = 'ou=users,DC=GIDS,DC=Allianz,DC=COM'
-        filter_str = f'(mail={email})'
-        attributes = ['allianz-GlobalID']
+        search_dn = os.getenv('LDAP_SEARCH_DN')
+        search_attributes = [os.getenv('LDAP_SEARCH_ATTRIBUTES')]
+        search_filter = f'(mail={email})'
 
         try:
             # Bind the connection if not already bound
@@ -33,7 +40,7 @@ class LDAP:
                 self.connection.bind()
 
             # Perform the search
-            self.connection.search(search_base=search_dn, search_filter=filter_str, search_scope=SUBTREE, attributes=attributes)
+            self.connection.search(search_base=search_dn, search_filter=search_filter, search_scope=SUBTREE, attributes=search_attributes)
 
             if self.connection.entries:
                 # Email found, validation successful
