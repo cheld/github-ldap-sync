@@ -1,5 +1,4 @@
 from ldap3 import Server, Connection, NTLM, SUBTREE
-import getpass
 import os
 
 class LDAP:
@@ -7,31 +6,29 @@ class LDAP:
         self.connection = None
 
         # Ensure that the required environment variables are set
-        required_env_variables = ['LDAP_HOST', 'LDAP_PORT', 'LDAP_BASE_DN', 'LDAP_USER', 'LDAP_SEARCH_DN', 'LDAP_SEARCH_ATTRIBUTES']
+        required_env_variables = ['LDAP_HOST', 'LDAP_PORT', 'LDAP_USER', 'LDAP_PASSWORD', 'LDAP_SEARCH_DN', 'LDAP_SEARCH_ATTRIBUTES']
         for env_variable in required_env_variables:
             if not os.getenv(env_variable):
                 raise ValueError(f"Required environment variable {env_variable} is not set.")
+            
+        # Get Ldap access params
+        self.host = os.getenv('LDAP_HOST')
+        self.port = int(os.getenv('LDAP_PORT', 636))
+        self.user =  os.getenv('LDAP_USER')
+        self.password = os.getenv('LDAP_PASSWORD')
+        self.search_dn = os.getenv('LDAP_SEARCH_DN')
+        self.search_attributes = [os.getenv('LDAP_SEARCH_ATTRIBUTES')]
 
 
     def open(self):
-
-        # Connection parameters  
-        host = os.getenv('LDAP_HOST')
-        port = int(os.getenv('LDAP_PORT', 636))
-        base_dn = os.getenv('LDAP_BASE_DN')
-        user =  os.getenv('LDAP_USER')
-        password = getpass.getpass("Enter your password: ")
-
         # Establish the connection using GSS Negotiate (Kerberos)
-        server = Server(host, port=port, use_ssl=True)
-        self.connection = Connection(server, user=user, password=password, authentication=NTLM, auto_bind='NO_TLS')
+        server = Server(self.host, port=self.port, use_ssl=True)
+        self.connection = Connection(server, user=self.user, password=self.password, authentication=NTLM, auto_bind='NO_TLS')
  
     
     def validate_email(self, email):
 
         # Search parameters
-        search_dn = os.getenv('LDAP_SEARCH_DN')
-        search_attributes = [os.getenv('LDAP_SEARCH_ATTRIBUTES')]
         search_filter = f'(mail={email})'
 
         try:
@@ -40,7 +37,7 @@ class LDAP:
                 self.connection.bind()
 
             # Perform the search
-            self.connection.search(search_base=search_dn, search_filter=search_filter, search_scope=SUBTREE, attributes=search_attributes)
+            self.connection.search(search_base=self.search_dn, search_filter=search_filter, search_scope=SUBTREE, attributes=self.search_attributes)
             if self.connection.entries:
                 return True
             else:
