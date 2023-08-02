@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 
 class Storage(ABC):
     @abstractmethod
-    def get_members(self):
+    def get_onboarded_users(self):
         pass
 
     @abstractmethod
-    def member_offboarded(self, email, msg):
+    def set_user_offboarded(self, email, msg):
         pass

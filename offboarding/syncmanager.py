@@ -34,12 +34,12 @@ class SyncManager:
         # Validate if members still have existing emails
         self.ldap.open()
         self.github.open()
-        for account, email in self.storage.get_members():
+        for account, email in self.storage.get_onboarded_users():
             print(f"Validating email '{email}' for Github account '{account}'")
             if not self.ldap.validate_email(email):
                 result, msg = self.github.remove_from_organization(account)
                 if result:
-                    self.storage.member_offboarded(email, msg)
+                    self.storage.set_user_offboarded(email, msg)
                 else:
                     print(msg)
         self.ldap.close()

@@ -4,7 +4,7 @@ class FileStorage(Storage):
     def __init__(self, file_path):
         self.file_path = file_path
 
-    def get_members(self):
+    def get_onboarded_users(self):
         try:
             emails = []
             with open(self.file_path, 'r') as file:
@@ -19,5 +19,5 @@ class FileStorage(Storage):
             print(f"An error occurred: {str(e)}")
             return []
 
-    def member_offboarded(self, email, msg):
+    def set_user_offboarded(self, email, msg):
         print(msg)
