@@ -41,14 +41,9 @@ class LDAP:
 
             # Perform the search
             self.connection.search(search_base=search_dn, search_filter=search_filter, search_scope=SUBTREE, attributes=search_attributes)
-
             if self.connection.entries:
-                # Email found, validation successful
-                print(f"Email '{email}' is still valid in Active Directory.")
                 return True
             else:
-                # Email not found, validation failed
-                print(f"Email '{email}' is not valid in Active Directory.")
                 return False
 
         except Exception as e:
