@@ -1,4 +1,0 @@
-aaldert,aaldert.oosthuizen@allianz.de
-cheld,christoph.held@allianz.de
-test,christoph.rademacher@allianz.com
-test2, arnau.oncins-rodriguez@allianz.com
