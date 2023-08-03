@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Registration</title>
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">User Registration</h1>
+        <form action="/register" method="POST">
+            <div class="field">
+                <label for="github" class="label">GitHub Account Name:</label>
+                <div class="control">
+                    <input type="text" class="input" name="github" id="github" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="email" class="label">Email:</label>
+                <div class="control">
+                    <input type="email" class="input" name="email" id="email" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <label class="checkbox">
+                        <input type="checkbox" name="guidelines" id="guidelines" required>
+                        I have read and accepted the guidelines.
+                    </label>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <label class="checkbox">
+                        <input type="checkbox" name="work_email" id="work_email" required>
+                        I accept that my work email will be stored.
+                    </label>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <label class="checkbox">
+                        <input type="checkbox" name="profile_picture" id="profile_picture" required>
+                        I confirm that my profile picture is not copyrighted.
+                    </label>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <button type="submit" class="button is-primary">Register</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Font Awesome JS (optional, only if you need to use Font Awesome JS components) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+</body>
+</html>
