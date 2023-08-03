@@ -1,6 +1,8 @@
 import os
 from flask import Flask, Response, render_template, request, jsonify, make_response
 from dotenv import load_dotenv
+import re
+
 from githubmanager import GithubManager
 from storagemanager import StorageManager
 
@@ -12,10 +14,11 @@ page_data = dict(
     contact=os.environ['PAGE_CONTACT'],
     org_name=os.environ['GITHUB_ORG_NAME'],
 )
+EMAIL_REGEX = os.environ['VALIDATION_EMAIL_REGEX']
 
 app = Flask(__name__)
 github = GithubManager()
-storage = StorageManager()
+storage = StorageManager() 
 
 
 @app.route('/', methods=['GET'])
@@ -23,12 +26,12 @@ def index_page():
   return render_template("main.html", data=page_data)
 
 
-@app.route('/error')
+@app.route('/error', methods=['GET'])
 def error_page():
     return render_template("error.html", data=page_data)
 
 
-@app.route('/success')
+@app.route('/success', methods=['GET'])
 def success_page():
     return render_template("success.html", data=page_data)
 
@@ -38,6 +41,15 @@ def invite():
     try:
         username = request.json['username']
         email = request.json['email']
+
+        if len(username)>40:
+            response_data = {'error': f"Github account name must be shorter than 40 characters"}
+            status_code = 400
+            return make_response(jsonify(response_data), status_code)
+        if not re.match(EMAIL_REGEX, email):
+            response_data = {'error': f"Email must match the patter {EMAIL_REGEX}"}
+            status_code = 400
+            return make_response(jsonify(response_data), status_code)
 
         # Join the organization and store the result
         github.open()
