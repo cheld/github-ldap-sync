@@ -1,47 +1,63 @@
 import os
-from flask import Flask, Response, render_template, request, jsonify
+from flask import Flask, Response, render_template, request, jsonify, make_response
 from dotenv import load_dotenv
+from githubmanager import GithubManager
+from storagemanager import StorageManager
+
+# Load environment variables from the .env file
+load_dotenv()
+page_data = dict(
+    title=os.environ['PAGE_TITLE'],
+    company=os.environ['PAGE_COMPANY'],
+    contact=os.environ['PAGE_CONTACT'],
+    org_name=os.environ['GITHUB_ORG_NAME'],
+)
 
 app = Flask(__name__)
+github = GithubManager()
+storage = StorageManager()
 
 
 @app.route('/', methods=['GET'])
-def main():
-  data = dict(
-    org_name=os.environ['GITHUB_ORG_NAME'],
-    company=os.environ['COMPANY'],
-  )
+def index_page():
+  return render_template("main.html", data=page_data)
 
-  return render_template("main.html", data=data)
 
 @app.route('/error')
-def error():
-  return render_template("error.html")
+def error_page():
+    return render_template("error.html", data=page_data)
 
-@app.route('/add', methods=['PUT'])
-def add():
-  
-  org_name = os.environ['GITHUB_ORG_NAME']
-  username = request.json['username']
-  email = request.json['email']
-  success = False
 
- 
-  result = None
-  if success:
-    result = dict(
-        url="https://github.com/orgs/{org_name}/invitation".format(org_name=org_name)
-    )
-  else:
-    result = dict(
-        url="/error"
-    )
+@app.route('/success')
+def success_page():
+    return render_template("success.html", data=page_data)
 
-  return jsonify(result), 200
+
+@app.route('/api/invite', methods=['PUT'])
+def invite():
+    try:
+        username = request.json['username']
+        email = request.json['email']
+
+        # Join the organization and store the result
+        github.open()
+        success, msg = github.join_organization(username)
+        if success:
+            storage.set_user_onboarded(username, email)
+
+        # Generate http response code
+        if success:
+            response_data = {'message': msg}
+            status_code = 200
+        else:
+            response_data = {'error': msg}
+            status_code = 400  
+        return make_response(jsonify(response_data), status_code)
+
+    except Exception as e:
+        print(e)
+        return make_response(jsonify({'error': "Operation failed for an unknown reason"}), 500)
+
 
 if __name__ == "__main__":
-  
-  # Load environment variables from the .env file
-  load_dotenv()
-  
-  app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0")

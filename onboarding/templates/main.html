@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>drive-google-invite</title>
+  <title>{{data.title}}</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css" />
   <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
@@ -65,35 +65,37 @@
   </section>
 </body>
 <script>
-  var username = document.getElementById("username");
-  var email = document.getElementById("email");
-  var readGuidelines = document.getElementById("confirmation");
   var submit = document.getElementById("submit");
-
-  var btn_origin_color = submit.style.backgroundColor;
-
-  var click_submit = submit.addEventListener("click", request_submit);
+  submit.addEventListener("click", request_submit);
 
   function request_submit(evt) {
-    evt.preventDefault();
+      evt.preventDefault();
 
-    var data = {
-      username: username.value,
-      email: email.value
-    }
+      var username = document.getElementById("username").value
+      var email = document.getElementById("email").value
 
-    fetch("/add", {
-      method: "PUT",
-      headers: new Headers({
-        "content-type": "application/json"
-      }),
-      body: JSON.stringify(data)
-    })
-      .then(res => res.json())
-      .then(response => {
-        window.location.href = response.url;
-      });
-  }
+      fetch("/api/invite", {
+        method: "PUT",
+        headers: new Headers({
+          "content-type": "application/json"
+        }),
+        body: JSON.stringify({
+          username: username,
+          email: email
+        })
+      })
+      .then(res => {
+          if (res.status === 200) {
+              window.location.href = "/success";
+          } else if (res.status === 400) {
+              return res.json().then(response => {
+                  alert(response.error);
+              });
+          } else {
+              window.location.href = "/error";
+          }
+        });
+      }
 </script>
 
 </html>
