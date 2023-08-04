@@ -66,15 +66,13 @@
   </section>
 </body>
 <script>
-  const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
   var submit = document.getElementById("submit");
   var username = document.getElementById("username")
   var email = document.getElementById("email")
   var confirmation = document.getElementById("confirmation")
 
   submit.addEventListener("click", request_submit);
-  
+
   email.addEventListener("input", function() {
     updateSubmitButton()
   });
@@ -86,7 +84,7 @@
   });
 
   function updateSubmitButton(){
-    if (EMAIL_REGEX.test(email.value) && username.value && confirmation.checked) {
+    if (email.value && username.value && confirmation.checked) {
         submit.disabled = false;
       } else {
         submit.disabled = true;

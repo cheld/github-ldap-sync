@@ -47,7 +47,7 @@ def invite():
             status_code = 400
             return make_response(jsonify(response_data), status_code)
         if not re.match(EMAIL_REGEX, email):
-            response_data = {'error': f"Email must match the patter {EMAIL_REGEX}"}
+            response_data = {'error': f"Allianz email must be used, following the pattern {EMAIL_REGEX}"}
             status_code = 400
             return make_response(jsonify(response_data), status_code)
 
