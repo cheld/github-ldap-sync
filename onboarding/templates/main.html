@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css" />
   <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     /* Custom styles */
     .checkbox {
@@ -38,7 +39,7 @@
             </div>
             <div class="field is-grouped">
               <p class="control is-expanded has-icons-left">
-                <input class="is-rounded input is-dark" type="email" id="email" placeholder="Your Email Address">
+                <input class="is-rounded input is-dark" type="email" id="email" placeholder="Your Allianz Email Address">
                 <span class="icon is-small is-left">
                   <i class="fa fa-envelope" aria-hidden="true"></i>
                 </span>
@@ -55,7 +56,7 @@
             <br>
             <div class="field is-grouped is-grouped-right">
               <p class="control">
-                <button class="button is-info" id="submit" title="submit">Invite</button>
+                <button class="button is-info" id="submit" title="submit" disabled>Invite</button>
               </p>
             </div>
           </div>
@@ -65,14 +66,37 @@
   </section>
 </body>
 <script>
+  const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
   var submit = document.getElementById("submit");
+  var username = document.getElementById("username")
+  var email = document.getElementById("email")
+  var confirmation = document.getElementById("confirmation")
+
   submit.addEventListener("click", request_submit);
+  
+  email.addEventListener("input", function() {
+    updateSubmitButton()
+  });
+  username.addEventListener("input", function() {
+    updateSubmitButton()
+  });
+  confirmation.addEventListener("input", function() {
+    updateSubmitButton()
+  });
+
+  function updateSubmitButton(){
+    if (EMAIL_REGEX.test(email.value) && username.value && confirmation.checked) {
+        submit.disabled = false;
+      } else {
+        submit.disabled = true;
+      }
+  }
+
 
   function request_submit(evt) {
       evt.preventDefault();
-
-      var username = document.getElementById("username").value
-      var email = document.getElementById("email").value
+      submit.classList.add("is-loading");
 
       fetch("/api/invite", {
         method: "PUT",
@@ -80,22 +104,40 @@
           "content-type": "application/json"
         }),
         body: JSON.stringify({
-          username: username,
-          email: email
+          username: username.value,
+          email: email.value
         })
       })
       .then(res => {
-          if (res.status === 200) {
-              window.location.href = "/success";
-          } else if (res.status === 400) {
-              return res.json().then(response => {
-                  alert(response.error);
-              });
-          } else {
-              window.location.href = "/error";
-          }
-        });
-      }
+        if (res.status === 200) {
+          showSuccess()
+        } else if (res.status === 400) {
+          return res.json().then(response => { 
+            showError(response.error) 
+          });
+        } else {
+          showInternalError()
+        }
+      })
+      .finally(() => {
+        submit.classList.remove("is-loading");
+      });
+    }
+
+    // Show result
+    function showSuccess() {
+      Swal.fire(
+            'Invitation sent ...',
+            'Please check the mailbox associated with Github.',
+            'success'
+          );
+    }
+    function showError(msg) {
+      Swal.fire(msg, '', 'error');
+    }
+    function showInternalError() {
+      window.location.href = "/error";
+    }
 </script>
 
 </html>

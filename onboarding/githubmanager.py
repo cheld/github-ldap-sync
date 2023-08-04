@@ -37,8 +37,12 @@ class GithubManager:
                 else:
                     raise e
 
-            # Add user to org
+            # Check if user is already org member
             org=self.github.get_organization(self.org_name)
+            if org.has_in_members(user_to_add):
+                return False, (f"User '{github_account}' is already a member of '{self.org_name}'.")
+            
+            # Add user to org
             org.invite_user(user_to_add)
             return True, (f"User '{github_account}' successfully removed from {self.org_name}.")
 
