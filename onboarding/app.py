@@ -31,11 +31,6 @@ def error_page():
     return render_template("error.html", data=page_data)
 
 
-@app.route('/success', methods=['GET'])
-def success_page():
-    return render_template("success.html", data=page_data)
-
-
 @app.route('/api/invite', methods=['PUT'])
 def invite():
     try:
