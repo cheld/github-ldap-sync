@@ -1,7 +1,7 @@
 from ldap3 import Server, Connection, NTLM, SUBTREE
 import os
 
-class LDAP:
+class LdapService:
     def __init__(self):
         self.connection = None
 

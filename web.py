@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 import re
 import traceback
 
-from githubmanager import GithubManager
-from storagemanager import StorageManager
+from shared.github_service import GithubService
+from shared.storage_service import StorageService
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -18,8 +18,8 @@ page_data = dict(
 EMAIL_REGEX = os.environ['VALIDATION_EMAIL_REGEX']
 
 app = Flask(__name__)
-github = GithubManager()
-storage = StorageManager() 
+github = GithubService()
+storage = StorageService.create()
 
 
 @app.route('/', methods=['GET'])

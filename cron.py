@@ -1,6 +1,11 @@
+from shared.storage_service import StorageService
+from shared.ldap_service import LdapService
+from shared.github_service import GithubService
+from dotenv import load_dotenv
+from croniter import croniter
 import time
 import os
-from croniter import croniter
+
 
 class SyncManager:
     def __init__(self, ldap, github, storage):
@@ -44,3 +49,18 @@ class SyncManager:
                     print(msg)
         self.ldap.close()
         self.github.close()
+
+
+if __name__ == '__main__':
+    
+    # Load environment variables from the .env file
+    load_dotenv()
+    
+    # Initialize objects
+    ldap = LdapService()
+    github = GithubService()
+    storage = StorageService.create()
+
+    sync_manager = SyncManager(ldap, github, storage)
+    sync_manager.run()
+

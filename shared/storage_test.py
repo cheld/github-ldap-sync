@@ -1,6 +1,6 @@
-from storage import Storage
+from shared.storage_service import StorageService
 
-class FileStorage(Storage):
+class TestStorage(StorageService):
     def __init__(self, file_path):
         self.file_path = file_path
 
