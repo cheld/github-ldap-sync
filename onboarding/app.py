@@ -2,6 +2,7 @@ import os
 from flask import Flask, Response, render_template, request, jsonify, make_response
 from dotenv import load_dotenv
 import re
+import traceback
 
 from githubmanager import GithubManager
 from storagemanager import StorageManager
@@ -62,7 +63,7 @@ def invite():
         return make_response(jsonify(response_data), status_code)
 
     except Exception as e:
-        print(e)
+        traceback.print_exc() 
         return make_response(jsonify({'error': "Operation failed for an unknown reason"}), 500)
 
 
