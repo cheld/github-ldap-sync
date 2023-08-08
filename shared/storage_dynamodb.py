@@ -7,29 +7,7 @@ class DynamoDbStorage:
         self.table = self.dynamodb.Table(self.table_name)
 
 
-    def list_all_emails(self):
-        # Return a list of all LDAP emails in the table
-        response = self.table.scan(ProjectionExpression='ldap_email')
-        return [item['ldap_email'] for item in response.get('Items', [])]
-    
 
-    def set_status_to_offboarded(self, ldap_email):
-        # Set the status of the specified LDAP email to 'offboarded'
-        self.table.update_item(
-            Key={'ldap_email': ldap_email},
-            UpdateExpression='SET #s = :status',
-            ExpressionAttributeNames={'#s': 'status'},
-            ExpressionAttributeValues={':status': 'offboarded'}
-        )
-
-    
-    def set_last_event(self, ldap_email, msg):
-        # Set the last_event field of the specified LDAP email to the given message
-        self.table.update_item(
-            Key={'ldap_email': ldap_email},
-            UpdateExpression='SET last_event = :msg',
-            ExpressionAttributeValues={':msg': msg}
-        )
     
 
     def onboard_gh_account(self, ldap_email, gh_account_id, gh_account_login, gh_orgs):
@@ -44,8 +22,8 @@ class DynamoDbStorage:
                     ':gh_account_id': gh_account_id,
                     ':gh_account_login': gh_account_login,
                     ':gh_orgs': gh_orgs,
-                    ':status': 'active',
-                    ':last_event': 'User onboarded to Github'
+                    ':status': 'onboarded',
+                    ':last_event': f'User {gh_account_login} joined Github organization {gh_orgs}'
                 }
             )
         else:
@@ -56,10 +34,31 @@ class DynamoDbStorage:
                     'gh_account_id': gh_account_id,
                     'gh_account_login': gh_account_login,
                     'gh_orgs': gh_orgs,
-                    'status': 'active',
-                    'last_event': 'User onboarded to Github'
+                    'status': 'onboarded',
+                    'last_event': f'User {gh_account_login} joined Github organization {gh_orgs}'
                 }
             )
+
+
+    def list_onboarded_gh_accounts(self):
+        # Return a list of all onboarded GitHub account details
+        response = self.table.scan(
+            FilterExpression='#s = :onboarded',
+            ExpressionAttributeNames={'#s': 'status'},
+            ExpressionAttributeValues={':onboarded': 'onboarded'},
+            ProjectionExpression='gh_account_id, gh_account_login, ldap_email'
+        )
+        return response.get('Items', [])
+    
+
+    def set_status_to_offboarded(self, ldap_email):
+        # Set the status of the specified LDAP email to 'offboarded'
+        self.table.update_item(
+            Key={'ldap_email': ldap_email},
+            UpdateExpression='SET #s = :status',
+            ExpressionAttributeNames={'#s': 'status'},
+            ExpressionAttributeValues={':status': 'offboarded'}
+        )
 
     
 
@@ -78,6 +77,16 @@ class DynamoDbStorage:
         items = response.get('Items', [])
         return items[0]['ldap_email'] if items else None
     
+
+
+    
+    def set_last_event(self, ldap_email, msg):
+        # Set the last_event field of the specified LDAP email to the given message
+        self.table.update_item(
+            Key={'ldap_email': ldap_email},
+            UpdateExpression='SET last_event = :msg',
+            ExpressionAttributeValues={':msg': msg}
+        )
 
     def list_all_accounts(self):
         # Return a list of all active GitHub account IDs

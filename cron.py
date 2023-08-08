@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from croniter import croniter
 import time
 import os
+import traceback
 
 
 class SyncManager:
@@ -36,19 +37,27 @@ class SyncManager:
             self.sync()
 
     def sync(self):
-        # Validate if members still have existing emails
-        self.ldap.open()
-        self.github.open()
-        for account, email in self.storage.get_onboarded_users():
-            print(f"Validating email '{email}' for Github account '{account}'")
-            if not self.ldap.validate_email(email):
-                result, msg = self.github.remove_from_organization(account)
-                if result:
-                    self.storage.set_status_to_offboarded(email)
-                else:
-                    print(msg)
-        self.ldap.close()
-        self.github.close()
+        try:
+            # Validate if members still have existing emails
+            print("Validate if Github organization members still have valid emails.")
+            self.ldap.open()
+            self.github.open()
+            for item in self.storage.list_onboarded_gh_accounts():
+                gh_account_id = item.get('gh_account_id')
+                gh_account_login = item.get('gh_account_login')
+                ldap_email = item.get('ldap_email')
+                print(f"{ldap_email}...")
+                if not self.ldap.validate_email(ldap_email):
+                    print(f"Email '{ldap_email}' is not Valid. Removing Github account '{gh_account_login}' from org.")
+                    result, msg = self.github.remove_from_organization(gh_account_login)
+                    if result:
+                        self.storage.set_status_to_offboarded(ldap_email)
+                    else:
+                        print(msg)
+            self.ldap.close()
+            self.github.close()
+        except Exception as e:
+            traceback.print_exc() 
 
 
 if __name__ == '__main__':

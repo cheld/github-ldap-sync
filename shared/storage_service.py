@@ -15,7 +15,7 @@ class StorageService(ABC):
     
 
     @abstractmethod
-    def list_all_emails(self):
+    def list_oboarded_gh_accounts(self):
         pass
     
     @abstractmethod

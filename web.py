@@ -48,6 +48,9 @@ def invite():
             response_data = {'error': f"Allianz email must be used, following the pattern {EMAIL_REGEX}"}
             status_code = 400
             return make_response(jsonify(response_data), status_code)
+        
+        # Validate email
+        #TODO
 
         # Join the organization and store the result
         github.open()
