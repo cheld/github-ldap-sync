@@ -54,16 +54,16 @@ class GithubService:
         
 
 
-    def remove_from_organization(self, github_account):
+    def remove_from_organization(self, gh_account_id, gh_account_login):
         try: 
             # Get user to be removed
             user_to_remove = None
             try:
-                user_to_remove = self.github.get_user(github_account)
+                user_to_remove = self.github.get_user_by_id(int(gh_account_id))
             except GithubException as e:
                 if e.status == 404:
                     # User deleted his account himself. Ignore
-                    return True, (f"User '{github_account}' does not exist any longer.")
+                    return True, (f"User '{gh_account_login}' does not exist any longer.")
                 else:
                     raise e
 
@@ -71,14 +71,14 @@ class GithubService:
             org=self.github.get_organization(self.org_name)
             if not  org.has_in_members(user_to_remove):
                 # User removed himself from organization. Ignore
-                return True, (f"User '{github_account}' is already removed from {self.org_name}.")
+                return True, (f"User '{gh_account_login}' is already removed from {self.org_name}.")
 
             # Remove user from org
             #org.remove_from_members(user_to_remove)
-            return True, (f"User '{github_account}' successfully removed from {self.org_name}.")
+            return True, (f"User '{gh_account_login}' successfully removed from {self.org_name}.")
 
         except Exception as e:
-            return False, (f"User '{github_account}' could not be removed from {self.org_name}. Reason: {e}")
+            return False, (f"User '{gh_account_login}' could not be removed from {self.org_name}. Reason: {e}")
         
 
     def close(self):

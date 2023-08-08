@@ -39,21 +39,22 @@ class SyncManager:
     def sync(self):
         try:
             # Validate if members still have existing emails
-            print("Validate if Github organization members still have valid emails.")
+            print("------------------------------------------------------------------")
+            print("Validating if Github organization members still have valid emails.")
             self.ldap.open()
             self.github.open()
             for item in self.storage.list_onboarded_gh_accounts():
                 gh_account_id = item.get('gh_account_id')
                 gh_account_login = item.get('gh_account_login')
                 ldap_email = item.get('ldap_email')
-                print(f"{ldap_email}...")
+                print(f"\nChecking {ldap_email} ...")
                 if not self.ldap.validate_email(ldap_email):
                     print(f"Email '{ldap_email}' is not Valid. Removing Github account '{gh_account_login}' from org.")
-                    result, msg = self.github.remove_from_organization(gh_account_login)
+                    result, msg = self.github.remove_from_organization(gh_account_id, gh_account_login)
+                    print(msg)
                     if result:
-                        self.storage.set_status_to_offboarded(ldap_email)
-                    else:
-                        print(msg)
+                        self.storage.set_status_to_offboarded(ldap_email, msg)
+            print("\nDone")
             self.ldap.close()
             self.github.close()
         except Exception as e:

@@ -51,13 +51,16 @@ class DynamoDbStorage:
         return response.get('Items', [])
     
 
-    def set_status_to_offboarded(self, ldap_email):
+    def set_status_to_offboarded(self, ldap_email, last_event):
         # Set the status of the specified LDAP email to 'offboarded'
         self.table.update_item(
             Key={'ldap_email': ldap_email},
-            UpdateExpression='SET #s = :status',
+            UpdateExpression='SET #s = :status, last_event = :last_event',
             ExpressionAttributeNames={'#s': 'status'},
-            ExpressionAttributeValues={':status': 'offboarded'}
+            ExpressionAttributeValues={
+                ':status': 'offboarded',
+                ':last_event': last_event
+            }
         )
 
     
