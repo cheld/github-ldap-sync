@@ -26,30 +26,31 @@ class GithubService:
         self.github = installation.get_github_for_installation()
 
 
-    def join_organization(self, github_account):
+    def join_organization(self, gh_account_login):
         try: 
             # Get user to be removed
             user_to_add = None
             try:
-                user_to_add = self.github.get_user(github_account)
+                user_to_add = self.github.get_user(gh_account_login)
             except GithubException as e:
                 if e.status == 404:
                     # User deleted his account himself. Ignore
-                    return False, (f"User '{github_account}' does not exist.")
+                    return False, None, (f"User '{gh_account_login}' does not exist.")
                 else:
                     raise e
-            #print(user_to_add.id)
+            gh_account_id = user_to_add.id
+
             # Check if user is already org member
             org=self.github.get_organization(self.org_name)
             if org.has_in_members(user_to_add):
-                return False, (f"User '{github_account}' is already a member of '{self.org_name}'.")
+                return False, gh_account_id, (f"User '{gh_account_login}' is already a member of '{self.org_name}'.")
             
             # Add user to org
             org.invite_user(user_to_add)
-            return True, (f"User '{github_account}' successfully removed from {self.org_name}.")
+            return True, gh_account_id, (f"User '{gh_account_login}' successfully removed from {self.org_name}.")
 
         except Exception as e:
-            raise Exception(f"User '{github_account}' could not join to {self.org_name}. Reason: {e}")
+            raise Exception(f"User '{gh_account_login}' could not join to {self.org_name}. Reason: {e}")
         
 
 

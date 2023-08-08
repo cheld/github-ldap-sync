@@ -37,10 +37,10 @@ def error_page():
 @app.route('/api/invite', methods=['PUT'])
 def invite():
     try:
-        username = request.json['username']
+        gh_account_login = request.json['username']
         email = request.json['email']
 
-        if len(username)>40:
+        if len(gh_account_login)>40:
             response_data = {'error': f"Github account name must be shorter than 40 characters"}
             status_code = 400
             return make_response(jsonify(response_data), status_code)
@@ -51,9 +51,9 @@ def invite():
 
         # Join the organization and store the result
         github.open()
-        success, msg = github.join_organization(username)
+        success, gh_account_id, msg = github.join_organization(gh_account_login)
         if success:
-            storage.onboard_gh_account(email, 'gh_account_id', username, GH_ORG_NAME)
+            storage.onboard_gh_account(email, gh_account_id, gh_account_login, GH_ORG_NAME)
 
 
         # Generate http response code
