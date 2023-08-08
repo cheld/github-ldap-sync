@@ -52,12 +52,18 @@ def invite():
         # Validate email
         #TODO
 
-        # Join the organization and store the result
+        # Clean-up previously onboarded github users
         github.open()
+        existing_id, existing_login = storage.search_gh_account(ldap_email)
+        if existing_id is not None:
+            cleanup_succ, msg = github.remove_from_organization(existing_id, existing_login)
+            if not cleanup_succ:
+                raise Exception(f"Warning. Clean up of account {existing_login} for {ldap_email} failed. Reason: {msg}")
+
+        # Join the organization and store the result   
         success, gh_account_id, msg = github.join_organization(gh_account_login)
         if success:
             storage.onboard_gh_account(ldap_email, gh_account_id, gh_account_login, GH_ORG_NAME)
-
 
         # Generate http response code
         if success:

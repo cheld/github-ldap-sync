@@ -31,11 +31,11 @@ class StorageService(ABC):
         pass
     
     @abstractmethod
-    def search_account(self, ldap_email):
+    def search_gh_account(self, ldap_email):
         pass
     
     @abstractmethod
-    def search_email(self, gh_account_login):
+    def search_ldap_email(self, gh_account_login):
         pass
     
     @abstractmethod

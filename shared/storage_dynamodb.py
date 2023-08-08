@@ -64,15 +64,14 @@ class DynamoDbStorage:
         )
 
     
-
-    def search_account(self, ldap_email):
-        # Return the GitHub account login associated with the given LDAP email
-        # Search and return the GitHub account login associated with the given LDAP email
+    def search_gh_account(self, ldap_email):
+        # Return the GitHub account details associated with the given LDAP email
         response = self.table.get_item(Key={'ldap_email': ldap_email})
-        return response.get('Item', {}).get('gh_account_login', None)
+        item = response.get('Item', {})
+        return item.get('gh_account_id', None), item.get('gh_account_login', None)
 
-    
-    def search_email(self, gh_account_login):
+
+    def search_ldap_email(self, gh_account_login):
         # Return the LDAP email associated with the given GitHub account login
         # Search and return the LDAP email associated with the given GitHub account login
         response = self.table.scan(FilterExpression='gh_account_login = :login',
@@ -81,8 +80,6 @@ class DynamoDbStorage:
         return items[0]['ldap_email'] if items else None
     
 
-
-    
     def set_last_event(self, ldap_email, msg):
         # Set the last_event field of the specified LDAP email to the given message
         self.table.update_item(

@@ -74,7 +74,7 @@ class GithubService:
                 return True, (f"User '{gh_account_login}' is already removed from {self.org_name}.")
 
             # Remove user from org
-            #org.remove_from_members(user_to_remove)
+            org.remove_from_members(user_to_remove)
             return True, (f"User '{gh_account_login}' successfully removed from {self.org_name}.")
 
         except Exception as e:
