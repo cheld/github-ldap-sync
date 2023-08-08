@@ -16,10 +16,12 @@ page_data = dict(
     org_name=os.environ['GITHUB_ORG_NAME'],
 )
 EMAIL_REGEX = os.environ['VALIDATION_EMAIL_REGEX']
+GH_ORG_NAME = os.environ['GITHUB_ORG_NAME'],
 
 app = Flask(__name__)
 github = GithubService()
 storage = StorageService.create()
+storage.init()
 
 
 @app.route('/', methods=['GET'])
@@ -51,7 +53,8 @@ def invite():
         github.open()
         success, msg = github.join_organization(username)
         if success:
-            storage.set_user_onboarded(username, email)
+            storage.onboard_gh_account(email, 'gh_account_id', username, GH_ORG_NAME)
+
 
         # Generate http response code
         if success:

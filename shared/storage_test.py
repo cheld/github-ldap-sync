@@ -4,7 +4,8 @@ class TestStorage(StorageService):
     def __init__(self, file_path):
         self.file_path = file_path
 
-    def get_onboarded_users(self):
+
+    def list_all_emails(self):
         try:
             emails = []
             with open(self.file_path, 'r') as file:
@@ -18,6 +19,35 @@ class TestStorage(StorageService):
         except Exception as e:
             print(f"An error occurred: {str(e)}")
             return []
+    
 
-    def set_user_offboarded(self, email, msg):
-        print(msg)
+    def set_status_to_offboarded(self, ldap_email):
+        print(f"User {ldap_email} offboarded")
+    
+
+    def set_last_event(self, ldap_email, msg):
+        pass
+    
+
+    def onboard_gh_account(self, ldap_email, gh_account_id, gh_account_login):
+        print(f"User {ldap_email} with Github account {gh_account_login} onboarded")
+    
+
+    def search_account(self, ldap_email):
+        pass
+    
+
+    def search_email(self, gh_account_login):
+        pass
+    
+
+    def list_all_accounts(self):
+        pass
+    
+
+    def update_account(self, gh_account_id, new_gh_account_login):
+        pass
+
+
+    def init():
+        pass

@@ -44,7 +44,7 @@ class SyncManager:
             if not self.ldap.validate_email(email):
                 result, msg = self.github.remove_from_organization(account)
                 if result:
-                    self.storage.set_user_offboarded(email, msg)
+                    self.storage.set_status_to_offboarded(email)
                 else:
                     print(msg)
         self.ldap.close()
